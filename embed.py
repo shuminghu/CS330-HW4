@@ -236,6 +236,9 @@ class EncoderDecoder(Embedder, relabel.RewardLabeler):
         #
         # Note that all_decoder_contexts[batch][t] represents g_omega(tau_{:t}).
         # You may not need to use all of the parameters passed to this function.
+        diff = all_decoder_contexts - id_contexts.unsqueeze(1).detach()
+        decoder_context_loss = diff.pow(2).sum(dim=-1)
+        #print("max context loss: ", decoder_context_loss.max())
         #
         # Parts of the decoder_context_loss are masked below for you to handle
         # batches of episodes of different lengths. You do not need to do
@@ -323,6 +326,10 @@ class EncoderDecoder(Embedder, relabel.RewardLabeler):
         # Additionally, a penalty c is applied to the rewards. This is
         # alredy done for you below, and you don't need to do anything.
         # See Equation (5) of the DREAM paper if you're curious.
+        diff = all_decoder_contexts - id_contexts.unsqueeze(1)
+        distances = diff.pow(2).sum(dim=-1)
+        rewards = distances[:, :-1] - distances[:, 1:]
+        # print("max reward: ", rewards.max())
         # ********************************************************
         # ******************* YOUR CODE HERE *********************
         # ********************************************************
