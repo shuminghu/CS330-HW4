@@ -79,7 +79,13 @@ class CityGridEnv(grid.GridEnv):
             np.array((4, 4)), np.array((4, 0)),
     ]
 
-    _bus_permutations = list(itertools.permutations(_destinations))
+    def generate_permutations(destinations):
+        print("Generating bus permutations...")
+        permutations = list(itertools.permutations(destinations))
+        np.random.shuffle(permutations)
+        return permutations    
+    
+    _bus_permutations = generate_permutations(_destinations)
 
     _height = 5
     _width = 5
@@ -106,8 +112,11 @@ class CityGridEnv(grid.GridEnv):
 
     @classmethod
     def env_ids(cls):
-        ids = np.expand_dims(np.array(range(len(cls._bus_permutations))), 1)
-        return np.array(ids), np.array(ids)
+        all_ids = np.arange(len(cls._bus_permutations))
+        split = int(len(all_ids) * 0.8)
+        train_ids = all_ids[:split]
+        test_ids = all_ids[split:]
+        return np.expand_dims(train_ids, 1), np.expand_dims(test_ids, 1)
 
     def text_description(self):
         return "bus grid"
